@@ -1,0 +1,28 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "namePrefix": {
+      "value": "gmail-digest"
+    },
+    "location": {
+      "value": "eastus"
+    },
+    "adminEmail": {
+      "value": "your-admin-email@example.com"
+    },
+    "googleClientId": {
+      "value": "your-google-client-id.apps.googleusercontent.com"
+    },
+    "googleClientSecret": {
+      "value": "your-google-client-secret"
+    },
+    "gmailRefreshToken": {
+      "value": "your-gmail-refresh-token"
+    },
+    "sendGridApiKey": {
+      "value": "your-sendgrid-api-key"
+    }
+  }
+}
+

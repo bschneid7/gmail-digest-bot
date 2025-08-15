@@ -1,0 +1,76 @@
+name: Deploy Gmail Digest Bot to Azure
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  AZURE_WEBAPP_NAME: gmail-digest-bot
+  AZURE_FUNCTIONAPP_NAME: gmail-digest-scheduler
+  NODE_VERSION: '18.x'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  build-and-deploy-webapp:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: web/package-lock.json
+    
+    - name: Build React frontend
+      run: |
+        cd web
+        npm ci
+        npm run build
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Create deployment package
+      run: |
+        mkdir -p deployment
+        cp -r app/* deployment/
+        cp -r web/dist deployment/static/
+        cp Dockerfile deployment/
+    
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        package: deployment
+
+  deploy-functions:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install dependencies
+      run: |
+        cd scheduler
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Deploy to Azure Functions
+      uses: Azure/functions-action@v1
+      with:
+        app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+        package: scheduler
+        publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+
