@@ -53,9 +53,7 @@ jobs:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
-          name: python-app
-      - name: Extract artifact
-        run: ls -R      
+          name: python-app    
         
       - name: Login to Azure
         uses: azure/login@v2
@@ -72,4 +70,5 @@ jobs:
           slot-name: 'Production'
 
           
+
 
